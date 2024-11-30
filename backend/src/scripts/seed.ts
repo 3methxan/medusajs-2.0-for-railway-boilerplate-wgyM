@@ -13,31 +13,57 @@ import {
   linkSalesChannelsToStockLocationWorkflow,
   updateStoresWorkflow,
 } from "@medusajs/core-flows";
-import {
-  ExecArgs,
-} from "@medusajs/types";
+import { ExecArgs } from "@medusajs/types";
 import {
   ContainerRegistrationKeys,
   Modules,
-  ProductStatus
+  ProductStatus,
 } from "@medusajs/utils";
 
 export default async function seedDemoData({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
-  const remoteLink = container.resolve(
-    ContainerRegistrationKeys.REMOTE_LINK
-  );
-  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK);
+  const query = container.resolve(ContainerRegistrationKeys.QUERY);
   const fulfillmentModuleService = container.resolve(Modules.FULFILLMENT);
   const salesChannelModuleService = container.resolve(Modules.SALES_CHANNEL);
   const storeModuleService = container.resolve(Modules.STORE);
 
-  const countries = ["gb", "de", "dk", "se", "fr", "es", "it"];
+  const countries = [
+    "at",
+    "be",
+    "bg",
+    "hr",
+    "cy",
+    "cz",
+    "dk",
+    "ee",
+    "fi",
+    "fr",
+    "de",
+    "gr",
+    "hu",
+    "ie",
+    "it",
+    "lv",
+    "lt",
+    "lu",
+    "mt",
+    "nl",
+    "pl",
+    "pt",
+    "ro",
+    "sk",
+    "si",
+    "es",
+    "se",
+  ];
+  // ## shop data
 
   logger.info("Seeding store data...");
+
   const [store] = await storeModuleService.listStores();
   let defaultSalesChannel = await salesChannelModuleService.listSalesChannels({
-    name: "Default Sales Channel",
+    name: "Carbon Sales Channel",
   });
 
   if (!defaultSalesChannel.length) {
@@ -48,7 +74,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
       input: {
         salesChannelsData: [
           {
-            name: "Default Sales Channel",
+            name: "Carbon Sales Channel",
           },
         ],
       },
@@ -64,9 +90,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
           {
             currency_code: "eur",
             is_default: true,
-          },
-          {
-            currency_code: "usd",
           },
         ],
         default_sales_channel_id: defaultSalesChannel[0].id,
@@ -98,16 +121,17 @@ export default async function seedDemoData({ container }: ExecArgs) {
   logger.info("Finished seeding tax regions.");
 
   logger.info("Seeding stock location data...");
+
   const { result: stockLocationResult } = await createStockLocationsWorkflow(
     container
   ).run({
     input: {
       locations: [
         {
-          name: "European Warehouse",
+          name: "Vienna SuperSecret Warehouse",
           address: {
-            city: "Copenhagen",
-            country_code: "DK",
+            city: "VIenna",
+            country_code: "AT",
             address_1: "",
           },
         },
@@ -115,6 +139,9 @@ export default async function seedDemoData({ container }: ExecArgs) {
     },
   });
   const stockLocation = stockLocationResult[0];
+
+  //const europeanStockLocation = stockLocationResult[0];
+  //const americanStockLocation = stockLocationResult[0];
 
   await remoteLink.create({
     [Modules.STOCK_LOCATION]: {
@@ -140,18 +167,65 @@ export default async function seedDemoData({ container }: ExecArgs) {
   const shippingProfile = shippingProfileResult[0];
 
   const fulfillmentSet = await fulfillmentModuleService.createFulfillmentSets({
-    name: "European Warehouse delivery",
+    name: "European Prodution delivery",
     type: "shipping",
     service_zones: [
       {
-        name: "Europe",
+        name: "Austria",
         geo_zones: [
           {
-            country_code: "gb",
+            country_code: "at",
+            type: "country",
+          },
+        ],
+      },
+      {
+        name: "Germany and Luxemburg",
+        geo_zones: [
+          {
+            country_code: "de",
             type: "country",
           },
           {
-            country_code: "de",
+            country_code: "lu",
+            type: "country",
+          },
+        ],
+      },
+      {
+        name: "Switzerland and Liechtenstein",
+        geo_zones: [
+          {
+            country_code: "ch",
+            type: "country",
+          },
+          {
+            country_code: "li",
+            type: "country",
+          },
+        ],
+      },
+      {
+        name: "EU remaining",
+        geo_zones: [
+          {
+            country_code: "be",
+            type: "country",
+          },
+          {
+            country_code: "bg",
+            type: "country",
+          },
+          {
+            country_code: "hr",
+            type: "country",
+          },
+          {
+            country_code: "cy",
+            type: "country",
+          },
+          {
+            country_code: "cz",
             type: "country",
           },
           {
@@ -159,7 +233,11 @@ export default async function seedDemoData({ container }: ExecArgs) {
             type: "country",
           },
           {
-            country_code: "se",
+            country_code: "ee",
+            type: "country",
+          },
+          {
+            country_code: "fi",
             type: "country",
           },
           {
@@ -167,11 +245,71 @@ export default async function seedDemoData({ container }: ExecArgs) {
             type: "country",
           },
           {
-            country_code: "es",
+            country_code: "gr",
+            type: "country",
+          },
+          {
+            country_code: "hu",
+            type: "country",
+          },
+          {
+            country_code: "ie",
             type: "country",
           },
           {
             country_code: "it",
+            type: "country",
+          },
+          {
+            country_code: "lv",
+            type: "country",
+          },
+          {
+            country_code: "lt",
+            type: "country",
+          },
+          {
+            country_code: "mt",
+            type: "country",
+          },
+          {
+            country_code: "nl",
+            type: "country",
+          },
+          {
+            country_code: "pl",
+            type: "country",
+          },
+          {
+            country_code: "pt",
+            type: "country",
+          },
+          {
+            country_code: "ro",
+            type: "country",
+          },
+          {
+            country_code: "sk",
+            type: "country",
+          },
+          {
+            country_code: "si",
+            type: "country",
+          },
+          {
+            country_code: "es",
+            type: "country",
+          },
+          {
+            country_code: "sw",
+            type: "country",
+          },
+          {
+            country_code: "is",
+            type: "country",
+          },
+          {
+            country_code: "no",
             type: "country",
           },
         ],
@@ -191,28 +329,24 @@ export default async function seedDemoData({ container }: ExecArgs) {
   await createShippingOptionsWorkflow(container).run({
     input: [
       {
-        name: "Standard Shipping",
+        name: "Standard Shipping AT",
         price_type: "flat",
         provider_id: "manual_manual",
         service_zone_id: fulfillmentSet.service_zones[0].id,
         shipping_profile_id: shippingProfile.id,
         type: {
           label: "Standard",
-          description: "Ship in 2-3 days.",
+          description: "Shipping of your Goodie",
           code: "standard",
         },
         prices: [
           {
-            currency_code: "usd",
-            amount: 10,
-          },
-          {
             currency_code: "eur",
-            amount: 10,
+            amount: 4.9,
           },
           {
             region_id: region.id,
-            amount: 10,
+            amount: 4.9,
           },
         ],
         rules: [
@@ -229,28 +363,92 @@ export default async function seedDemoData({ container }: ExecArgs) {
         ],
       },
       {
-        name: "Express Shipping",
+        name: "Standard Shipping DE LU",
         price_type: "flat",
         provider_id: "manual_manual",
-        service_zone_id: fulfillmentSet.service_zones[0].id,
+        service_zone_id: fulfillmentSet.service_zones[1].id,
         shipping_profile_id: shippingProfile.id,
         type: {
-          label: "Express",
-          description: "Ship in 24 hours.",
+          label: "Standard",
+          description: "Shipping of your Goodie",
           code: "express",
         },
         prices: [
           {
-            currency_code: "usd",
-            amount: 10,
-          },
-          {
             currency_code: "eur",
-            amount: 10,
+            amount: 7,
           },
           {
             region_id: region.id,
-            amount: 10,
+            amount: 7,
+          },
+        ],
+        rules: [
+          {
+            attribute: "enabled_in_store",
+            value: '"true"',
+            operator: "eq",
+          },
+          {
+            attribute: "is_return",
+            value: "false",
+            operator: "eq",
+          },
+        ],
+      },
+      {
+        name: "Standard Shipping CH LI",
+        price_type: "flat",
+        provider_id: "manual_manual",
+        service_zone_id: fulfillmentSet.service_zones[2].id,
+        shipping_profile_id: shippingProfile.id,
+        type: {
+          label: "Standard",
+          description: "Shipping of your Goodie",
+          code: "standard",
+        },
+        prices: [
+          {
+            currency_code: "eur",
+            amount: 22,
+          },
+          {
+            region_id: region.id,
+            amount: 22,
+          },
+        ],
+        rules: [
+          {
+            attribute: "enabled_in_store",
+            value: '"true"',
+            operator: "eq",
+          },
+          {
+            attribute: "is_return",
+            value: "false",
+            operator: "eq",
+          },
+        ],
+      },
+      {
+        name: "Standard Shipping CH",
+        price_type: "flat",
+        provider_id: "manual_manual",
+        service_zone_id: fulfillmentSet.service_zones[3].id,
+        shipping_profile_id: shippingProfile.id,
+        type: {
+          label: "Standard",
+          description: "Shipping of your Goodie",
+          code: "express",
+        },
+        prices: [
+          {
+            currency_code: "eur",
+            amount: 12,
+          },
+          {
+            region_id: region.id,
+            amount: 12,
           },
         ],
         rules: [
@@ -287,7 +485,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: "Webshop",
           type: "publishable",
-          created_by: "",
+          created_by: "3methxan",
         },
       ],
     },
@@ -310,15 +508,19 @@ export default async function seedDemoData({ container }: ExecArgs) {
     input: {
       product_categories: [
         {
+          name: "Apparel",
+          is_active: true,
+        },
+        {
           name: "Shirts",
           is_active: true,
         },
         {
-          name: "Sweatshirts",
+          name: "Hoodies",
           is_active: true,
         },
         {
-          name: "Pants",
+          name: "Socks",
           is_active: true,
         },
         {
@@ -329,185 +531,210 @@ export default async function seedDemoData({ container }: ExecArgs) {
     },
   });
 
+  const { result: productTagsResult } = await createProductTagsWorkflow(
+    container
+  ).run({
+    input: {
+      product_tags: [
+        {
+          value: "Best Sellers",
+        },
+        {
+          value: "Only 10 Ever Produced",
+        },
+        {
+          value: "Rare edition - XS",
+        },
+        {
+          value: "Up to XXXXL",
+        },
+        {
+          value: "Misprints",
+        },
+      ],
+    },
+  });
+
+  const { result: collectionsResult } = await createCollectionsWorkflow(
+    container
+  ).run({
+    input: {
+      collections: [
+        {
+          title: "EXFISCH",
+          handle: "exfisch",
+        },
+        {
+          title: "FLORESC",
+          handle: "floresc",
+        },
+        {
+          title: "TROOPER",
+          handle: "trooper",
+        },
+        {
+          title: "FINGER",
+          handle: "finger",
+        },
+        {
+          title: "SIX F",
+          handle: "six_f",
+        },
+        {
+          title: "FUUYOU",
+          handle: "fuuyuo",
+        },
+        {
+          title: "BLANK",
+          handle: "blank",
+        },
+        {
+          title: "misprints",
+          handle: "misprints",
+        },
+      ],
+    },
+  });
+
   await createProductsWorkflow(container).run({
     input: {
       products: [
         {
-          title: "Medusa T-Shirt",
+          title: "EXFISCH Hoodie",
           category_ids: [
-            categoryResult.find((cat) => cat.name === "Shirts").id,
+            categoryResult.find((cat) => cat.name === "Apparel").id,
+            categoryResult.find((cat) => cat.name === "Hoodies").id,
           ],
           description:
-            "Reimagine the feeling of a classic T-shirt. With our cotton T-shirts, everyday essentials no longer have to be ordinary.",
-          handle: "t-shirt",
+            "Nothing says Happy Holidays better, than this subtle referece to whats killing our planet.",
+          handle: "exfisch-hoodie",
           weight: 400,
           status: ProductStatus.PUBLISHED,
           images: [
             {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-black-front.png",
-            },
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-black-back.png",
-            },
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-white-front.png",
-            },
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-white-back.png",
+              url: "assets/media/EXFISCH-HOODIE-BLACK_white.png",
             },
           ],
           options: [
             {
               title: "Size",
-              values: ["S", "M", "L", "XL"],
+              values: ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"],
             },
             {
               title: "Color",
-              values: ["Black", "White"],
+              values: ["Black"],
             },
           ],
           variants: [
             {
-              title: "S / Black",
-              sku: "SHIRT-S-BLACK",
+              title: "Hoodie EXFISCH / S / Black",
+              sku: "EXFISCH-H-BLACK-S",
               options: {
                 Size: "S",
                 Color: "Black",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 120.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "S / White",
-              sku: "SHIRT-S-WHITE",
-              options: {
-                Size: "S",
-                Color: "White",
-              },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "M / Black",
-              sku: "SHIRT-M-BLACK",
+              title: "Hoodie EXFISCH / M / Black",
+              sku: "EXFISCH-H-BLACK-M",
               options: {
                 Size: "M",
                 Color: "Black",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 120.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "M / White",
-              sku: "SHIRT-M-WHITE",
-              options: {
-                Size: "M",
-                Color: "White",
-              },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "L / Black",
-              sku: "SHIRT-L-BLACK",
+              title: "Hoodie EXFISCH / L / Black",
+              sku: "EXFISCH-H-BLACK-L",
               options: {
                 Size: "L",
                 Color: "Black",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 120.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "L / White",
-              sku: "SHIRT-L-WHITE",
-              options: {
-                Size: "L",
-                Color: "White",
-              },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "XL / Black",
-              sku: "SHIRT-XL-BLACK",
+              title: "Hoodie EXFISCH / XL / Black",
+              sku: "EXFISCH-H-BLACK-XL",
               options: {
                 Size: "XL",
                 Color: "Black",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 120.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "XL / White",
-              sku: "SHIRT-XL-WHITE",
+              title: "Hoodie EXFISCH / 2XL / Black",
+              sku: "EXFISCH-H-BLACK-2XL",
               options: {
-                Size: "XL",
-                Color: "White",
+                Size: "2XL",
+                Color: "Black",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 120.0,
                   currency_code: "eur",
                 },
+              ],
+            },
+            {
+              title: "Hoodie EXFISCH / 3XL / Black",
+              sku: "EXFISCH-H-BLACK-3XL",
+              options: {
+                Size: "3XL",
+                Color: "Black",
+              },
+              prices: [
                 {
-                  amount: 15,
-                  currency_code: "usd",
+                  amount: 120.0,
+                  currency_code: "eur",
+                },
+              ],
+            },
+            {
+              title: "Hoodie EXFISCH / 4XL / Black",
+              sku: "EXFISCH-H-BLACK-4XL",
+              options: {
+                Size: "4XL",
+                Color: "Black",
+              },
+              prices: [
+                {
+                  amount: 120.0,
+                  currency_code: "eur",
+                },
+              ],
+            },
+            {
+              title: "Hoodie EXFISCH / 5XL / Black",
+              sku: "EXFISCH-H-BLACK-5XL",
+              options: {
+                Size: "5XL",
+                Color: "Black",
+              },
+              prices: [
+                {
+                  amount: 120.0,
+                  currency_code: "eur",
                 },
               ],
             },
@@ -518,96 +745,143 @@ export default async function seedDemoData({ container }: ExecArgs) {
             },
           ],
         },
+
         {
-          title: "Medusa Sweatshirt",
+          title: "FUUYOU Hoodie",
           category_ids: [
-            categoryResult.find((cat) => cat.name === "Sweatshirts").id,
+            categoryResult.find((cat) => cat.name === "Apparel").id,
+            categoryResult.find((cat) => cat.name === "Hoodies").id,
           ],
-          description:
-            "Reimagine the feeling of a classic sweatshirt. With our cotton sweatshirt, everyday essentials no longer have to be ordinary.",
-          handle: "sweatshirt",
+
+          description: "Incredible hoodie. You need one for sure.",
+          handle: "fuuyou-hoodie",
           weight: 400,
           status: ProductStatus.PUBLISHED,
           images: [
             {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/sweatshirt-vintage-front.png",
-            },
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/sweatshirt-vintage-back.png",
+              url: "assets/media/FU-HOODIE-WHITE_black.png",
             },
           ],
           options: [
             {
               title: "Size",
-              values: ["S", "M", "L", "XL"],
+              values: ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"],
+            },
+            {
+              title: "Color",
+              values: ["White"],
             },
           ],
           variants: [
             {
-              title: "S",
-              sku: "SWEATSHIRT-S",
+              title: "Hoodie FUUYOU / S / White",
+              sku: "FUUYOU-H-BLACK-S",
               options: {
                 Size: "S",
+                Color: "White",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 120.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "M",
-              sku: "SWEATSHIRT-M",
+              title: "Hoodie FUUYOU / M / White",
+              sku: "FUUYOU-H-BLACK-M",
               options: {
                 Size: "M",
+                Color: "White",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 120.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "L",
-              sku: "SWEATSHIRT-L",
+              title: "Hoodie FUUYOU / L / White",
+              sku: "FUUYOU-H-BLACK-L",
               options: {
                 Size: "L",
+                Color: "White",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 120.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "XL",
-              sku: "SWEATSHIRT-XL",
+              title: "Hoodie FUUYOU / XL / White",
+              sku: "FUUYOU-H-BLACK-XL",
               options: {
                 Size: "XL",
+                Color: "White",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 120.0,
                   currency_code: "eur",
                 },
+              ],
+            },
+            {
+              title: "Hoodie FUUYOU / 2XL / White",
+              sku: "FUUYOU-H-BLACK-2XL",
+              options: {
+                Size: "2XL",
+                Color: "White",
+              },
+              prices: [
                 {
-                  amount: 15,
-                  currency_code: "usd",
+                  amount: 120.0,
+                  currency_code: "eur",
+                },
+              ],
+            },
+            {
+              title: "Hoodie FUUYOU / 3XL / White",
+              sku: "FUUYOU-H-BLACK-3XL",
+              options: {
+                Size: "3XL",
+                Color: "White",
+              },
+              prices: [
+                {
+                  amount: 120.0,
+                  currency_code: "eur",
+                },
+              ],
+            },
+            {
+              title: "Hoodie FUUYOU / 4XL / White",
+              sku: "FUUYOU-H-BLACK-4XL",
+              options: {
+                Size: "4XL",
+                Color: "White",
+              },
+              prices: [
+                {
+                  amount: 120.0,
+                  currency_code: "eur",
+                },
+              ],
+            },
+            {
+              title: "Hoodie FUUYOU / 5XL / White",
+              sku: "FUUYOU-H-BLACK-5XL",
+              options: {
+                Size: "5XL",
+                Color: "White",
+              },
+              prices: [
+                {
+                  amount: 120.0,
+                  currency_code: "eur",
                 },
               ],
             },
@@ -618,192 +892,143 @@ export default async function seedDemoData({ container }: ExecArgs) {
             },
           ],
         },
+
         {
-          title: "Medusa Sweatpants",
-          category_ids: [categoryResult.find((cat) => cat.name === "Pants").id],
-          description:
-            "Reimagine the feeling of classic sweatpants. With our cotton sweatpants, everyday essentials no longer have to be ordinary.",
-          handle: "sweatpants",
+          title: "TROOPER Shirt",
+          category_ids: [
+            categoryResult.find((cat) => cat.name === "Apparel").id,
+            categoryResult.find((cat) => cat.name === "Shirts").id,
+          ],
+
+          description: "Incredible Shirt. You need one for sure.",
+          handle: "trooper-shirt",
           weight: 400,
           status: ProductStatus.PUBLISHED,
           images: [
             {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/sweatpants-gray-front.png",
-            },
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/sweatpants-gray-back.png",
+              url: "assets/media/TROOPER-SHIRT-WHITE_black.png",
             },
           ],
           options: [
             {
               title: "Size",
-              values: ["S", "M", "L", "XL"],
+              values: ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"],
+            },
+            {
+              title: "Color",
+              values: ["White"],
             },
           ],
           variants: [
             {
-              title: "S",
-              sku: "SWEATPANTS-S",
+              title: "Shirt TROOPER / S / White",
+              sku: "TROOPER-H-BLACK-s",
               options: {
                 Size: "S",
+                Color: "White",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 70.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "M",
-              sku: "SWEATPANTS-M",
+              title: "Shirt TROOPER / M / White",
+              sku: "TROOPER-H-BLACK-M",
               options: {
                 Size: "M",
+                Color: "White",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 70.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "L",
-              sku: "SWEATPANTS-L",
+              title: "Shirt TROOPER / L / White",
+              sku: "TROOPER-H-BLACK-L",
               options: {
                 Size: "L",
+                Color: "White",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 70.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "XL",
-              sku: "SWEATPANTS-XL",
+              title: "Shirt TROOPER / XL / White",
+              sku: "TROOPER-H-BLACK-XL",
               options: {
                 Size: "XL",
+                Color: "White",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 70.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-          ],
-          sales_channels: [
-            {
-              id: defaultSalesChannel[0].id,
-            },
-          ],
-        },
-        {
-          title: "Medusa Shorts",
-          category_ids: [categoryResult.find((cat) => cat.name === "Merch").id],
-          description:
-            "Reimagine the feeling of classic shorts. With our cotton shorts, everyday essentials no longer have to be ordinary.",
-          handle: "shorts",
-          weight: 400,
-          status: ProductStatus.PUBLISHED,
-          images: [
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/shorts-vintage-front.png",
-            },
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/shorts-vintage-back.png",
-            },
-          ],
-          options: [
-            {
-              title: "Size",
-              values: ["S", "M", "L", "XL"],
-            },
-          ],
-          variants: [
-            {
-              title: "S",
-              sku: "SHORTS-S",
-              options: {
-                Size: "S",
-              },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "M",
-              sku: "SHORTS-M",
+              title: "Shirt TROOPER / 2XL / White",
+              sku: "TROOPER-H-BLACK-2XL",
               options: {
-                Size: "M",
+                Size: "2XL",
+                Color: "White",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 70.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "L",
-              sku: "SHORTS-L",
+              title: "Shirt TROOPER / 3XL / White",
+              sku: "TROOPER-H-BLACK-3XL",
               options: {
-                Size: "L",
+                Size: "3XL",
+                Color: "White",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 70.0,
                   currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
                 },
               ],
             },
             {
-              title: "XL",
-              sku: "SHORTS-XL",
+              title: "Shirt TROOPER / 4XL / White",
+              sku: "TROOPER-H-BLACK-4XL",
               options: {
-                Size: "XL",
+                Size: "4XL",
+                Color: "White",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 70.0,
                   currency_code: "eur",
                 },
+              ],
+            },
+            {
+              title: "Shirt TROOPER / 5XL / White",
+              sku: "TROOPER-H-BLACK-5XL",
+              options: {
+                Size: "5XL",
+                Color: "White",
+              },
+              prices: [
                 {
-                  amount: 15,
-                  currency_code: "usd",
+                  amount: 70.0,
+                  currency_code: "eur",
                 },
               ],
             },
@@ -822,25 +1047,25 @@ export default async function seedDemoData({ container }: ExecArgs) {
   logger.info("Seeding inventory levels.");
 
   const { data: inventoryItems } = await query.graph({
-    entity: 'inventory_item',
-    fields: ['id']
-  })
+    entity: "inventory_item",
+    fields: ["id"],
+  });
 
-  const inventoryLevels = []
+  const inventoryLevels = [];
   for (const inventoryItem of inventoryItems) {
     const inventoryLevel = {
       location_id: stockLocation.id,
-      stocked_quantity: 1000000,
+      stocked_quantity: 14,
       inventory_item_id: inventoryItem.id,
-    }
-    inventoryLevels.push(inventoryLevel)
+    };
+    inventoryLevels.push(inventoryLevel);
   }
 
   await createInventoryLevelsWorkflow(container).run({
     input: {
-      inventory_levels: inventoryLevels
+      inventory_levels: inventoryLevels,
     },
-  })
+  });
 
   logger.info("Finished seeding inventory levels data.");
 }
